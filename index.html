@@ -91,6 +91,10 @@ const getTarget = (key, store) => {
   return isMedium(store) ? t.medium : t.small;
 };
 const getTargetNote = (key, store) => TARGETS[key]?.notes?.[store] || "";
+const targetText = (key, target, unit, note="") => {
+  const value = key === "rt_points" ? `${target >= 0 ? "+" : ""}${target}` : target;
+  return `目標${value}${unit}${note ? `（${note}）` : ""}`;
+};
 const meetsTarget = (key, val, store) => {
   const t = getTarget(key, store);
   if (t === null || val === "" || val === undefined) return null;
@@ -386,7 +390,7 @@ function KpiCard({item, value, store, onChange, showReq}) {
           {isReq && <span style={{fontSize:9,color:C.req,fontWeight:700,marginLeft:4}}>必填</span>}
         </span>
         <div style={{display:"flex",alignItems:"center",gap:4}}>
-          {target!==null && <span style={{fontSize:9,color:C.textDim}}>目標{target}{item.unit}{targetNote?`（${targetNote}）`:""}</span>}
+          {target!==null && <span style={{fontSize:9,color:C.textDim}}>{targetText(item.key, target, item.unit, targetNote)}</span>}
           {item.hasTarget && met===true  && <span style={{fontSize:13}}>🏆</span>}
           {item.hasTarget && met!==null  && <UpBadge met={met} size={12}/>}
           {isPr && <span style={{fontSize:12}}>👍</span>}
@@ -397,7 +401,7 @@ function KpiCard({item, value, store, onChange, showReq}) {
         onChange={e => onChange(e.target.value)}
         style={{...SI, fontSize:20, fontWeight:800, color:nc, borderColor:bdr, background:"transparent"}}/>
       {item.unit && <div style={{fontSize:9,color:isReq?C.req:C.textDim,marginTop:2,textAlign:"right"}}>{item.unit}</div>}
-      {item.hasTarget && target && <Bar pct={(parseFloat(value)||0)/target*100} color={met?C.rise:C.accent}/>}
+      {item.hasTarget && target!==null && <Bar pct={target>0?(parseFloat(value)||0)/target*100:met===true?100:0} color={met?C.rise:C.accent}/>}
       {notMet && !empty && <div style={{
         marginTop:6,padding:"4px 8px",
         background:"#FFF0F0",border:`1px solid ${C.fall}44`,
@@ -431,6 +435,8 @@ function App() {
   const [store,   setStore]   = useState("");
   const [date,    setDate]    = useState(todayStr());
   const [form,    setForm]    = useState(emptyForm());
+  const [dirty,   setDirty]   = useState(false);
+  const [formKey, setFormKey] = useState("");
   const [allData, setAllData] = useState({});
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
@@ -478,6 +484,8 @@ function App() {
   // 切換店別時載入既有資料
   useEffect(() => {
     if (store && date) {
+      const key = `${date}|${store}`;
+      if (dirty && formKey === key) return;
       const ex = allData?.[date]?.[store];
       setForm(ex ? {
         ...emptyForm(), ...ex,
@@ -486,16 +494,18 @@ function App() {
       } : emptyForm());
       setSaved(false);
       setTried(false);
+      setDirty(false);
+      setFormKey(key);
     }
-  }, [store, date, allData]);
+  }, [store, date, allData, dirty, formKey]);
 
   // form helper
-  const setF = (k, v) => { setForm(p => ({...p, [k]: v})); setSaved(false); };
+  const setF = (k, v) => { setForm(p => ({...p, [k]: v})); setSaved(false); setDirty(true); };
 
   // 請益操作
-  const qAdd    = key      => { setForm(p => ({...p, [key]: [...(p[key]||[]), emptyQixieRow()]})); setSaved(false); };
-  const qRemove = (key, i) => { const a = (form[key]||[]).filter((_,j) => j!==i); setForm(p => ({...p, [key]: a.length ? a : [emptyQixieRow()]})); setSaved(false); };
-  const qChange = (key, i, f, v) => { const a = [...(form[key]||[])]; a[i] = {...a[i], [f]:v}; setForm(p => ({...p, [key]: a})); setSaved(false); };
+  const qAdd    = key      => { setForm(p => ({...p, [key]: [...(p[key]||[]), emptyQixieRow()]})); setSaved(false); setDirty(true); };
+  const qRemove = (key, i) => { const a = (form[key]||[]).filter((_,j) => j!==i); setForm(p => ({...p, [key]: a.length ? a : [emptyQixieRow()]})); setSaved(false); setDirty(true); };
+  const qChange = (key, i, f, v) => { const a = [...(form[key]||[])]; a[i] = {...a[i], [f]:v}; setForm(p => ({...p, [key]: a})); setSaved(false); setDirty(true); };
 
   // 請益觸發：AQ999/RT1399 填入 0 才展開
   const needAQ  = String(form.AQ999).trim()  === "0";
@@ -599,6 +609,7 @@ function App() {
     setSaving(true); setNet("loading");
     try {
       await apiPost(date, store, form);
+      setDirty(false);
       setAllData(p => ({...p, [date]: {...(p[date]||{}), [store]: {...form}}}));
       await load(date);
       setSaved(true); setNet("ok");
@@ -679,11 +690,11 @@ function App() {
             <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-end"}}>
               <div style={{flex:"0 0 150px"}}>
                 <div style={{fontSize:11,color:C.textSec,marginBottom:4,fontWeight:500}}>日期</div>
-                <input type="date" value={date} onChange={e => { setDate(e.target.value); setSaved(false); }} style={SI} disabled={locked}/>
+                <input type="date" value={date} onChange={e => { setDate(e.target.value); setSaved(false); setDirty(false); }} style={SI} disabled={locked}/>
               </div>
               <div style={{flex:1,minWidth:160}}>
                 <div style={{fontSize:11,color:C.textSec,marginBottom:4,fontWeight:500}}>店別</div>
-                <select value={store} onChange={e => setStore(e.target.value)} style={SI} disabled={locked}>
+                <select value={store} onChange={e => { setStore(e.target.value); setDirty(false); }} style={SI} disabled={locked}>
                   <option value="">── 請選擇 ──</option>
                   <optgroup label="中型店">{STORES.medium.map(s => <option key={s} value={s}>{s}</option>)}</optgroup>
                   <optgroup label="小型店">{STORES.small.map(s  => <option key={s} value={s}>{s}</option>)}</optgroup>
@@ -712,7 +723,7 @@ function App() {
             <div style={{display:"flex",flexWrap:"wrap"}}>
               {ALL_STORES.map(s => {
                 const done = !!allData?.[date]?.[s], active = s===store;
-                return <button key={s} onClick={() => { setStore(s); window.scrollTo({top:0,behavior:"smooth"}); }} style={{flex:"1 1 33%",padding:"8px 12px",border:"none",borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,borderLeft:active?`3px solid ${C.gold}`:`3px solid transparent`,background:active?"#FDFAF0":"transparent",cursor:"pointer",textAlign:"left"}}>
+                return <button key={s} onClick={() => { setStore(s); setDirty(false); window.scrollTo({top:0,behavior:"smooth"}); }} style={{flex:"1 1 33%",padding:"8px 12px",border:"none",borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,borderLeft:active?`3px solid ${C.gold}`:`3px solid transparent`,background:active?"#FDFAF0":"transparent",cursor:"pointer",textAlign:"left"}}>
                   <span style={{display:"inline-block",width:7,height:7,borderRadius:"50%",background:done?C.fall:C.border,marginRight:6,verticalAlign:"middle"}}/>
                   <span style={{fontSize:12,color:active?C.textPri:C.textSec,fontWeight:active?700:400}}>{s}</span>
                   <span style={{fontSize:10,color:C.textDim,marginLeft:4}}>{isMedium(s)?"中":"小"}</span>
@@ -866,7 +877,7 @@ function App() {
               <button onClick={save} disabled={saving||locked} style={{flex:1,padding:"13px 0",background:locked?"#EEF0F4":saved?C.riseBg:C.accent,border:`2px solid ${locked?"#C8D0DC":saved?C.riseBdr:C.accent}`,color:locked?"#A0AABB":saved?C.rise:"#fff",borderRadius:8,fontWeight:800,fontSize:14,cursor:saving||locked?"not-allowed":"pointer",fontFamily:"inherit",boxShadow:saved||locked?"none":`0 2px 8px ${C.accent}44`,opacity:saving?.7:1}}>
                 {locked?"⛔ 已鎖檔（24:00）":saving?<><Spin/>儲存中...</>:saved?"▲ 已儲存":"儲存資料"}
               </button>
-              <button onClick={() => { setForm(emptyForm()); setSaved(false); setTried(false); }} disabled={locked} style={{padding:"13px 20px",background:"#fff",border:`1px solid ${C.border}`,color:locked?C.textDim:C.textSec,borderRadius:8,fontSize:13,cursor:locked?"not-allowed":"pointer",fontFamily:"inherit"}}>清除</button>
+              <button onClick={() => { setForm(emptyForm()); setSaved(false); setTried(false); setDirty(false); }} disabled={locked} style={{padding:"13px 20px",background:"#fff",border:`1px solid ${C.border}`,color:locked?C.textDim:C.textSec,borderRadius:8,fontSize:13,cursor:locked?"not-allowed":"pointer",fontFamily:"inherit"}}>清除</button>
             </div>
           </div>}
         </>}
