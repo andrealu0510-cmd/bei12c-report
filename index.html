@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>北一二C 即時回報</title>
+<title>🎆 N12C【7月畢業季 月初衝再前，A9.BB.R13先動店】 🏆</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
@@ -48,6 +48,8 @@ select option{background:#fff;color:#1A2332;}
 const API_URL = "https://north12c-report.n12c.workers.dev";
 const ENTRY_PASSWORD = "N12C";
 const AUTH_KEY = "n12c-report-auth-ok";
+const REPORT_TITLE = "🎆 N12C【7月畢業季 月初衝再前，A9.BB.R13先動店】 🏆";
+const REPORT_SUBTITLE = "強推舊換新：「此時不買何時買？現在換最划算！」";
 
 // ── 色票 ─────────────────────────────────────────────────────
 const C = {
@@ -449,7 +451,8 @@ function PasswordGate({onUnlock}) {
       <form onSubmit={submit} className="card" style={{width:"100%",maxWidth:360,padding:22,overflow:"hidden"}}>
         <div className="gold-top" style={{margin:"-22px -22px 18px"}}/>
         <div style={{fontSize:10,color:C.textSec,letterSpacing:1,marginBottom:2}}>台灣大哥大 · 北一二C管理區</div>
-        <div style={{fontSize:22,fontWeight:900,color:C.textPri,marginBottom:18}}>即時回報登入</div>
+        <div style={{fontSize:18,fontWeight:900,color:C.textPri,marginBottom:6,lineHeight:1.35}}>{REPORT_TITLE}</div>
+        <div style={{fontSize:12,fontWeight:800,color:C.gold,marginBottom:18,lineHeight:1.5}}>{REPORT_SUBTITLE}</div>
         <div style={{fontSize:11,color:C.textSec,marginBottom:6,fontWeight:700}}>請輸入回填密碼</div>
         <input type="password" value={pw} autoFocus placeholder="密碼"
           onChange={e => { setPw(e.target.value); setErr(false); }}
@@ -685,13 +688,12 @@ function ReportApp() {
       {/* HEADER */}
       <div style={{background:C.header,borderBottom:`1px solid ${C.border}`,boxShadow:"0 1px 4px rgba(26,35,50,.08)"}}>
         <div className="gold-top"/>
-        <div style={{maxWidth:920,margin:"0 auto",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <div>
+        <div style={{maxWidth:920,margin:"0 auto",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+          <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap",minWidth:0}}>
+            <div style={{maxWidth:560,minWidth:260}}>
               <div style={{fontSize:10,color:C.textSec,letterSpacing:1,marginBottom:1}}>台灣大哥大 · 北一二C管理區</div>
-              <div style={{fontSize:22,fontWeight:800,color:C.textPri}}>
-                即時回報 <span style={{fontSize:12,fontWeight:400,color:C.gold,marginLeft:8,borderLeft:`1px solid ${C.border}`,paddingLeft:8}}>LIVE</span>
-              </div>
+              <div style={{fontSize:18,fontWeight:900,color:C.textPri,lineHeight:1.35}}>{REPORT_TITLE}</div>
+              <div style={{fontSize:12,fontWeight:800,color:C.gold,lineHeight:1.45,marginTop:2}}>{REPORT_SUBTITLE}</div>
             </div>
             <div style={{display:"flex",gap:16,alignItems:"center",paddingLeft:16,borderLeft:`1px solid ${C.border}`}}>
               <div><div style={{fontSize:9,color:C.textSec,marginBottom:1}}>狀態</div><div style={{fontSize:11,color:netCol,fontWeight:700}}>{net==="ok"?"● 連線正常":net==="loading"?"● 同步中":"● 連線異常"}</div></div>
