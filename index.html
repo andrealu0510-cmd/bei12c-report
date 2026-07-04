@@ -39,6 +39,10 @@ select option{background:#fff;color:#1A2332;}
 .gold-top{height:3px;background:linear-gradient(90deg,#C8A020,#E8D060,#C8A020);}
 .tab-btn{padding:8px 20px;border:none;border-bottom:3px solid transparent;background:transparent;color:#5A7090;font-weight:500;font-size:13px;cursor:pointer;font-family:inherit;}
 .tab-btn.active{border-bottom-color:#C8A020;color:#1A2332;font-weight:700;}
+.staff-grid{display:grid;grid-template-columns:minmax(140px,1.5fr) repeat(3,minmax(100px,1fr));gap:8px;align-items:end;}
+@media (max-width:680px){
+  .staff-grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
@@ -50,6 +54,7 @@ const ENTRY_PASSWORD = "N12C";
 const AUTH_KEY = "n12c-report-auth-ok";
 const REPORT_TITLE = "🎆 N12C【7月畢業季 月初衝再前，A9.BB.R13先動店】 🏆";
 const REPORT_SUBTITLE = "強推舊換新：「此時不買何時買？現在換最划算！」";
+const INSURANCE_TARGET = 55;
 
 // ── 色票 ─────────────────────────────────────────────────────
 const C = {
@@ -83,7 +88,7 @@ const TARGETS = {
     },
     notes:{"台北天母":"低標衝刺60", "士林夜市":"低標衝刺50"},
   },
-  AQ999:{medium:1,small:1}, AQ1399:{medium:2,small:1},
+  AQ999:{medium:2,small:1}, AQ1399:{medium:2,small:1},
   RT999:{medium:5,small:4}, RT1399:{medium:4,small:3},
   tewei:{medium:5,small:4},
   broadband:{medium:1,small:1},
@@ -141,6 +146,7 @@ const FIELD_LABELS = {
   insurance_count:"保險搭售數", phone_sales:"手機設備案銷售數",
 };
 const QIXIE_FIELDS = ["handler","cust_status","product","plan","key_point","summary"];
+const STAFF_FIELDS = ["name","attach_count","device_count"];
 
 // ── 時間工具 ─────────────────────────────────────────────────
 const getNowHHMM = () => { const d = new Date(); return d.getHours()*100 + d.getMinutes(); };
@@ -155,12 +161,14 @@ const getPhaseInfo = () => {
 
 // ── 請益空列 ─────────────────────────────────────────────────
 const emptyQixieRow = () => ({ handler:"", cust_status:"", product:"", plan:"", key_point:"", summary:"" });
+const emptyStaffRow = () => ({ name:"", attach_count:"", device_count:"" });
 const emptyForm = () => ({
   ...Object.fromEntries(KPI_ITEMS.map(i => [i.key, ""])),
   broadband_500m: "",       // 是否為500M：yes/no
   broadband_guardian: "",   // 守護家筆數
   device_num:"", device_case:"",
   insurance_count:"", phone_sales:"",
+  staff_rows: [emptyStaffRow()],
   aq999_qixie:  [emptyQixieRow()],
   rt1399_qixie: [emptyQixieRow()],
 });
@@ -193,6 +201,13 @@ const calcDev = f => {
 const calcIns = f => {
   const i=parseFloat(f.insurance_count)||0, p=parseFloat(f.phone_sales)||0;
   return { i, p, pct:p>0?(i/p*100):null };
+};
+const calcStaffRate = row => {
+  const hasAttach = row?.attach_count !== "" && row?.attach_count !== undefined;
+  const hasDevice = row?.device_count !== "" && row?.device_count !== undefined;
+  if (!hasAttach || !hasDevice) return null;
+  const attach=parseFloat(row.attach_count)||0, device=parseFloat(row.device_count)||0;
+  return device>0 ? attach/device*100 : 0;
 };
 
 // ── 小元件 ───────────────────────────────────────────────────
@@ -304,10 +319,10 @@ function CelebrationOverlay({celebration, onDone}) {
   );
 }
 
-function ThBadge({pct, size=13}) {
+function ThBadge({pct, target=50, size=13}) {
   if (pct===null) return <span style={{color:C.textDim,fontSize:size}}>─</span>;
-  return pct>=50 ? <span style={{color:C.rise,fontSize:size,fontWeight:800}}>✓</span>
-                 : <span style={{color:C.rise,fontSize:size,fontWeight:800}}>⚠</span>;
+  return pct>=target ? <span style={{color:C.rise,fontSize:size,fontWeight:800}}>✓</span>
+                     : <span style={{color:C.fall,fontSize:size,fontWeight:800}}>⚠</span>;
 }
 function Bar({pct, color}) {
   return (
@@ -370,6 +385,46 @@ function QixieBlock({label, color, items, onChange, onAdd, onRemove}) {
   );
 }
 
+function StaffPerformanceBlock({items, onChange, onAdd, onRemove, showReq, disabled}) {
+  return (
+    <div data-testid="staff-performance" style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"12px",marginBottom:10,background:C.cardAlt}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+        <div>
+          <div style={{fontSize:12,fontWeight:700,color:C.textPri}}>今日上班人員個人搭售</div>
+          <div style={{fontSize:10,color:C.textSec,marginTop:2}}>個人搭售 / 個人設備 · 目標 ≥{INSURANCE_TARGET}%</div>
+        </div>
+        <button onClick={onAdd} disabled={disabled} style={{background:C.accent,color:"#fff",border:"none",borderRadius:6,padding:"6px 11px",fontSize:11,fontWeight:700,cursor:disabled?"not-allowed":"pointer",fontFamily:"inherit",opacity:disabled?.6:1}}>＋ 新增人員</button>
+      </div>
+      {items.map((row, i) => {
+        const pct = calcStaffRate(row);
+        const met = pct !== null ? pct >= INSURANCE_TARGET : null;
+        const rowIncomplete = showReq && STAFF_FIELDS.some(k => row[k] === "" || row[k] === undefined);
+        return <div key={i} data-testid={`staff-row-${i}`} style={{padding:"10px",marginBottom:i===items.length-1?0:8,border:`1px solid ${rowIncomplete?C.req:met===null?C.border:met?C.riseBdr:C.fallBdr}`,borderRadius:7,background:rowIncomplete?C.reqBg:met===null?"#fff":met?C.riseBg:C.fallBg}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+            <span style={{fontSize:10,fontWeight:700,color:C.textSec}}>人員 {i+1}{rowIncomplete && <span style={{color:C.req,marginLeft:5}}>請填完整</span>}</span>
+            {items.length>1 && <button onClick={() => onRemove(i)} disabled={disabled} aria-label={`刪除人員 ${i+1}`} title="刪除人員" style={{width:28,height:26,background:"transparent",border:`1px solid ${C.border}`,color:C.fall,borderRadius:5,fontSize:13,cursor:disabled?"not-allowed":"pointer",fontFamily:"inherit"}}>✕</button>}
+          </div>
+          <div className="staff-grid">
+            <div>
+              <div style={{fontSize:10,color:showReq&&row.name===""?C.req:C.textSec,marginBottom:4,fontWeight:showReq&&row.name===""?700:400}}>姓名{showReq&&row.name===""&&<span style={{fontSize:9,marginLeft:4}}>必填</span>}</div>
+              <input data-testid={`staff-name-${i}`} type="text" placeholder="請輸入姓名" value={row.name||""} onChange={e => onChange(i,"name",e.target.value)} disabled={disabled} style={{...SI,borderColor:showReq&&row.name===""?C.req:C.border}}/>
+            </div>
+            <NumInput label="搭售" fkey="attach_count" value={row.attach_count} onChange={(k,v)=>onChange(i,k,v)} showReq={showReq} disabled={disabled} testId={`staff-attach-${i}`}/>
+            <NumInput label="設備" fkey="device_count" value={row.device_count} onChange={(k,v)=>onChange(i,k,v)} showReq={showReq} disabled={disabled} testId={`staff-device-${i}`}/>
+            <div>
+              <div style={{fontSize:10,color:C.textSec,marginBottom:4}}>個人搭售率</div>
+              <div style={{...SI,minHeight:37,display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontSize:16,fontWeight:800,color:met===null?C.textDim:met?C.rise:C.fall,borderColor:met===null?C.border:met?C.riseBdr:C.fallBdr}}>
+                {pct===null?"—":`${pct.toFixed(1)}%`} <ThBadge pct={pct} target={INSURANCE_TARGET} size={16}/>
+              </div>
+            </div>
+          </div>
+          {pct!==null && <div style={{marginTop:7,fontSize:10,fontWeight:700,color:met?C.rise:C.fall}}>{met?`✓ 個人已達 ${INSURANCE_TARGET}%`:`⚠ 個人未達 ${INSURANCE_TARGET}%`}</div>}
+        </div>;
+      })}
+    </div>
+  );
+}
+
 // ── KPI 輸入卡 ────────────────────────────────────────────────
 function KpiCard({item, value, store, onChange, showReq}) {
   const met    = item.hasTarget ? meetsTarget(item.key, value, store) : null;
@@ -417,14 +472,14 @@ function KpiCard({item, value, store, onChange, showReq}) {
 }
 
 // ── 數字輸入欄（設備/保險用）────────────────────────────────
-function NumInput({label, fkey, value, onChange, showReq, disabled}) {
+function NumInput({label, fkey, value, onChange, showReq, disabled, testId}) {
   const isReq = showReq && value === "";
   return (
     <div>
       <div style={{fontSize:10,color:isReq?C.req:C.textSec,marginBottom:4,fontWeight:isReq?700:400}}>
         {label}{isReq && <span style={{fontSize:9,color:C.req,marginLeft:4}}>必填</span>}
       </div>
-      <input type="number" min={0} placeholder={isReq?"⚠ 請填寫":"0"} value={value}
+      <input data-testid={testId} type="number" min={0} placeholder={isReq?"⚠ 請填寫":"0"} value={value}
         onChange={e => onChange(fkey, e.target.value)} disabled={disabled}
         style={{...SI, fontSize:18, fontWeight:700, color:C.accent,
           borderColor:isReq?C.req:C.border, background:isReq?C.reqBg:"#fff"}}/>
@@ -528,6 +583,7 @@ function ReportApp() {
       const ex = allData?.[date]?.[store];
       setForm(ex ? {
         ...emptyForm(), ...ex,
+        staff_rows: ex.staff_rows && ex.staff_rows.length ? ex.staff_rows.map(r => ({...emptyStaffRow(), ...r})) : [emptyStaffRow()],
         aq999_qixie:  ex.aq999_qixie  && ex.aq999_qixie.length  ? ex.aq999_qixie  : [emptyQixieRow()],
         rt1399_qixie: ex.rt1399_qixie && ex.rt1399_qixie.length ? ex.rt1399_qixie : [emptyQixieRow()],
       } : emptyForm());
@@ -545,6 +601,10 @@ function ReportApp() {
   const qAdd    = key      => { setForm(p => ({...p, [key]: [...(p[key]||[]), emptyQixieRow()]})); setSaved(false); setDirty(true); };
   const qRemove = (key, i) => { const a = (form[key]||[]).filter((_,j) => j!==i); setForm(p => ({...p, [key]: a.length ? a : [emptyQixieRow()]})); setSaved(false); setDirty(true); };
   const qChange = (key, i, f, v) => { const a = [...(form[key]||[])]; a[i] = {...a[i], [f]:v}; setForm(p => ({...p, [key]: a})); setSaved(false); setDirty(true); };
+
+  const staffAdd = () => { setForm(p => ({...p, staff_rows:[...(p.staff_rows||[]), emptyStaffRow()]})); setSaved(false); setDirty(true); };
+  const staffRemove = i => { const a=(form.staff_rows||[]).filter((_,j)=>j!==i); setForm(p => ({...p,staff_rows:a.length?a:[emptyStaffRow()]})); setSaved(false); setDirty(true); };
+  const staffChange = (i, key, value) => { const a=[...(form.staff_rows||[])]; a[i]={...a[i],[key]:value}; setForm(p => ({...p,staff_rows:a})); setSaved(false); setDirty(true); };
 
   // 請益觸發：AQ999/RT1399 填入 0 才展開
   const needAQ  = String(form.AQ999).trim()  === "0";
@@ -565,7 +625,7 @@ function ReportApp() {
       },
       {
         label:"保險搭售率",
-        passed:isFilledNumber(data.insurance_count) && isFilledNumber(data.phone_sales) && insNow.pct !== null && insNow.pct >= 50,
+        passed:isFilledNumber(data.insurance_count) && isFilledNumber(data.phone_sales) && insNow.pct !== null && insNow.pct >= INSURANCE_TARGET,
       },
     ];
     const passedItems = checks.filter(i => i.passed).length;
@@ -589,7 +649,7 @@ function ReportApp() {
     const hitHearts = [
       meetsTarget("accessory", data.accessory, store) === true && "配件",
       meetsTarget("film", data.film, store) === true && "包膜",
-      insNow.pct !== null && insNow.pct >= 50 && "保險搭售",
+      insNow.pct !== null && insNow.pct >= INSURANCE_TARGET && "保險搭售",
     ].filter(Boolean);
     if (hitHearts.length) {
       types.add("heart");
@@ -631,6 +691,15 @@ function ReportApp() {
         alert("⚠ 第一階段（17:00前）所有欄位必須填妥才能儲存\n\n未填：" + empty.map(k => FIELD_LABELS[k]||k).join("、"));
         return;
       }
+    }
+
+    const staffRows = form.staff_rows || [];
+    const staffIncomplete = !staffRows.length || staffRows.some(row =>
+      !String(row.name||"").trim() || ["attach_count","device_count"].some(k => row[k] === "" || row[k] === undefined || row[k] === null || isNaN(parseFloat(row[k])) || parseFloat(row[k]) < 0)
+    );
+    if (staffIncomplete) {
+      alert("⚠ 今日上班人員資料必須填妥才能儲存\n\n請完整填寫每位人員的姓名、搭售與設備數量");
+      return;
     }
 
     // 第二階段：AQ999/RT1399 有值 → 請益必填
@@ -865,10 +934,10 @@ function ReportApp() {
             </div>
 
             {/* 保險 */}
-            <div style={{border:`1px solid ${ins.pct!==null?ins.pct>=50?C.riseBdr:C.fallBdr:C.border}`,borderRadius:8,padding:"12px",marginBottom:10,background:ins.pct!==null?ins.pct>=50?C.riseBg:C.fallBg:C.cardAlt}}>
+            <div style={{border:`1px solid ${ins.pct!==null?ins.pct>=INSURANCE_TARGET?C.riseBdr:C.fallBdr:C.border}`,borderRadius:8,padding:"12px",marginBottom:10,background:ins.pct!==null?ins.pct>=INSURANCE_TARGET?C.riseBg:C.fallBg:C.cardAlt}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <span style={{fontSize:12,fontWeight:700,color:C.textPri}}>保險搭售率</span>
-                <span style={{fontSize:10,color:C.textSec,background:"#EEF2F8",borderRadius:4,padding:"2px 7px"}}>目標 ≥50%</span>
+                <span style={{fontSize:10,color:C.textSec,background:"#EEF2F8",borderRadius:4,padding:"2px 7px"}}>目標 ≥{INSURANCE_TARGET}%</span>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,alignItems:"end"}}>
                 <NumInput label="保險搭售數" fkey="insurance_count" value={form.insurance_count} onChange={setF} showReq={tried && !phase2} disabled={locked}/>
@@ -876,14 +945,23 @@ function ReportApp() {
                 <div>
                   <div style={{fontSize:10,color:C.textSec,marginBottom:4}}>搭售率（自動）</div>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    <div style={{...SI,flex:1,fontSize:18,fontWeight:800,textAlign:"center",color:ins.pct===null?C.textDim:ins.pct>=50?C.rise:C.fall,borderColor:ins.pct===null?C.border:ins.pct>=50?C.riseBdr:C.fallBdr}}>{ins.pct!==null?`${ins.pct.toFixed(1)}%`:"—"}</div>
-                    <ThBadge pct={ins.pct} size={20}/>
+                    <div style={{...SI,flex:1,fontSize:18,fontWeight:800,textAlign:"center",color:ins.pct===null?C.textDim:ins.pct>=INSURANCE_TARGET?C.rise:C.fall,borderColor:ins.pct===null?C.border:ins.pct>=INSURANCE_TARGET?C.riseBdr:C.fallBdr}}>{ins.pct!==null?`${ins.pct.toFixed(1)}%`:"—"}</div>
+                    <ThBadge pct={ins.pct} target={INSURANCE_TARGET} size={20}/>
                   </div>
-                  {ins.pct!==null && <Bar pct={ins.pct} color={ins.pct>=50?C.rise:C.fall}/>}
+                  {ins.pct!==null && <Bar pct={ins.pct} color={ins.pct>=INSURANCE_TARGET?C.rise:C.fall}/>}
                 </div>
               </div>
-              {ins.pct!==null && ins.pct<50 && <div style={{marginTop:8,padding:"6px 10px",background:C.riseBg,border:`1px solid ${C.riseBdr}`,borderRadius:5,fontSize:11,color:C.rise,fontWeight:600}}>⚠ 保險搭售率 {ins.pct.toFixed(1)}%，低於 50%，請加強推薦</div>}
+              {ins.pct!==null && ins.pct>=INSURANCE_TARGET && <div style={{marginTop:8,padding:"6px 10px",background:C.riseBg,border:`1px solid ${C.riseBdr}`,borderRadius:5,fontSize:11,color:C.rise,fontWeight:700}}>✓ 保險搭售率 {ins.pct.toFixed(1)}%，已達 {INSURANCE_TARGET}%</div>}
+              {ins.pct!==null && ins.pct<INSURANCE_TARGET && <div style={{marginTop:8,padding:"6px 10px",background:C.fallBg,border:`1px solid ${C.fallBdr}`,borderRadius:5,fontSize:11,color:C.fall,fontWeight:600}}>⚠ 保險搭售率 {ins.pct.toFixed(1)}%，低於 {INSURANCE_TARGET}%，請加強推薦</div>}
             </div>
+
+            <StaffPerformanceBlock
+              items={form.staff_rows||[emptyStaffRow()]}
+              onChange={staffChange}
+              onAdd={staffAdd}
+              onRemove={staffRemove}
+              showReq={tried}
+              disabled={locked}/>
 
             {/* 其他 */}
             <div style={{marginBottom:12}}><SL label="其他項目" color={C.fall}/>
@@ -1035,18 +1113,18 @@ function ReportApp() {
                     {/* 保險 */}
                     {(() => {
                       const tI=sumItem("insurance_count"), tP=sumItem("phone_sales");
-                      const tPct=(tI!==null&&tP!==null&&tP>0)?(tI/tP*100):null, tOk=tPct!==null?tPct>=50:null;
+                      const tPct=(tI!==null&&tP!==null&&tP>0)?(tI/tP*100):null, tOk=tPct!==null?tPct>=INSURANCE_TARGET:null;
                       return <tr style={{background:C.card}}>
-                        <td style={{...TD,fontWeight:600}}>保險搭售率<div style={{fontSize:9,color:C.textSec}}>搭售數/手機銷售≥50%</div></td>
+                        <td style={{...TD,fontWeight:600}}>保險搭售率<div style={{fontSize:9,color:C.textSec}}>搭售數/手機銷售≥{INSURANCE_TARGET}%</div></td>
                         {filled.map(s => {
                           const f=sumEnt[s]||{}, i=parseFloat(f.insurance_count)||0, p=parseFloat(f.phone_sales)||0;
-                          const pct=(f.insurance_count!==undefined&&f.phone_sales!==undefined&&p>0)?(i/p*100):null, ok=pct!==null?pct>=50:null;
+                          const pct=(f.insurance_count!==undefined&&f.phone_sales!==undefined&&p>0)?(i/p*100):null, ok=pct!==null?pct>=INSURANCE_TARGET:null;
                           return <td key={s} style={{...TD,textAlign:"center",background:ok===null?C.card:ok?C.riseBg:C.fallBg}}>
-                            {pct!==null?<><div style={{fontSize:10,color:C.textSec}}>搭:{i} / 機:{p}</div><div style={{fontWeight:700,fontSize:13,color:ok?C.rise:C.fall}}>{pct.toFixed(1)}% <ThBadge pct={pct} size={11}/></div></>:<span style={{color:C.textDim}}>—</span>}
+                            {pct!==null?<><div style={{fontSize:10,color:C.textSec}}>搭:{i} / 機:{p}</div><div style={{fontWeight:700,fontSize:13,color:ok?C.rise:C.fall}}>{pct.toFixed(1)}% <ThBadge pct={pct} target={INSURANCE_TARGET} size={11}/></div></>:<span style={{color:C.textDim}}>—</span>}
                           </td>;
                         })}
-                        <td style={{...TD,textAlign:"center",borderLeft:`2px solid ${C.gold}44`,background:tOk===null?C.card:tOk?C.fallBg:C.riseBg}}>
-                          {tPct!==null?<><div style={{fontSize:10,color:C.textSec}}>搭:{tI} / 機:{tP}</div><div style={{fontWeight:700,fontSize:13,color:tOk?C.fall:C.rise}}>{tPct.toFixed(1)}% <ThBadge pct={tPct} size={11}/></div></>:"—"}
+                        <td style={{...TD,textAlign:"center",borderLeft:`2px solid ${C.gold}44`,background:tOk===null?C.card:tOk?C.riseBg:C.fallBg}}>
+                          {tPct!==null?<><div style={{fontSize:10,color:C.textSec}}>搭:{tI} / 機:{tP}</div><div style={{fontWeight:700,fontSize:13,color:tOk?C.rise:C.fall}}>{tPct.toFixed(1)}% <ThBadge pct={tPct} target={INSURANCE_TARGET} size={11}/></div></>:"—"}
                         </td>
                       </tr>;
                     })()}
@@ -1054,6 +1132,40 @@ function ReportApp() {
                 </table>
               </div>
             </div>
+
+            {/* 今日上班人員彙整 */}
+            {(() => {
+              const rows = filled.flatMap(s => (sumEnt[s]?.staff_rows||[])
+                .filter(r => r.name || r.attach_count!=="" || r.device_count!=="")
+                .map((r,i) => ({store:s,rowIndex:i,...r})));
+              if (!rows.length) return null;
+              const metCount = rows.filter(r => {
+                const pct=calcStaffRate(r);
+                return pct!==null && pct>=INSURANCE_TARGET;
+              }).length;
+              return <div className="card" style={{overflow:"hidden",marginBottom:10}}>
+                <div style={{padding:"9px 14px",borderBottom:`2px solid ${C.accent}44`,background:C.accentLight,display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                  <span style={{fontSize:12,fontWeight:700,color:C.accent}}>今日上班人員個人搭售率</span>
+                  <span style={{fontSize:10,color:C.textSec}}>達標 {metCount}/{rows.length} · 目標 ≥{INSURANCE_TARGET}%</span>
+                </div>
+                <div style={{overflowX:"auto"}}>
+                  <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                    <thead><tr>{["門市","姓名","搭售","設備","個人搭售率","結果"].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                    <tbody>{rows.map((r,i) => {
+                      const pct=calcStaffRate(r), met=pct!==null?pct>=INSURANCE_TARGET:null;
+                      return <tr key={`${r.store}-${r.rowIndex}`} style={{background:i%2===0?C.card:C.cardAlt}}>
+                        <td style={{...TD,fontWeight:600,color:isMedium(r.store)?C.accent:C.fall}}>{r.store}</td>
+                        <td style={{...TD,fontWeight:700}}>{r.name||"—"}</td>
+                        <td style={{...TD,textAlign:"center"}}>{r.attach_count!==""&&r.attach_count!==undefined?r.attach_count:"—"}</td>
+                        <td style={{...TD,textAlign:"center"}}>{r.device_count!==""&&r.device_count!==undefined?r.device_count:"—"}</td>
+                        <td style={{...TD,textAlign:"center",fontWeight:800,color:met===null?C.textDim:met?C.rise:C.fall,background:met===null?"transparent":met?C.riseBg:C.fallBg}}>{pct!==null?`${pct.toFixed(1)}%`:"—"}</td>
+                        <td style={{...TD,textAlign:"center",fontWeight:700,color:met===null?C.textDim:met?C.rise:C.fall}}>{met===null?"—":met?"✓ 達標":"⚠ 未達標"}</td>
+                      </tr>;
+                    })}</tbody>
+                  </table>
+                </div>
+              </div>;
+            })()}
 
             {/* 請益彙整 */}
             {[["aq999_qixie","AQ999",C.rise],["rt1399_qixie","RT1399",C.warn]].map(([qKey,lbl,color]) => {
