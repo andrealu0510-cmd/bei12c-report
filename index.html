@@ -46,6 +46,8 @@ select option{background:#fff;color:#1A2332;}
 <script type="text/babel">
 
 const API_URL = "https://north12c-report.n12c.workers.dev";
+const ENTRY_PASSWORD = "N12C";
+const AUTH_KEY = "n12c-report-auth-ok";
 
 // ── 色票 ─────────────────────────────────────────────────────
 const C = {
@@ -428,8 +430,42 @@ function NumInput({label, fkey, value, onChange, showReq, disabled}) {
   );
 }
 
-// ══ App ══════════════════════════════════════════════════════
-function App() {
+function PasswordGate({onUnlock}) {
+  const {useState} = React;
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
+  const submit = e => {
+    e.preventDefault();
+    if (pw.trim() === ENTRY_PASSWORD) {
+      try { sessionStorage.setItem(AUTH_KEY, "1"); } catch {}
+      onUnlock();
+      return;
+    }
+    setErr(true);
+    setPw("");
+  };
+  return (
+    <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:18}}>
+      <form onSubmit={submit} className="card" style={{width:"100%",maxWidth:360,padding:22,overflow:"hidden"}}>
+        <div className="gold-top" style={{margin:"-22px -22px 18px"}}/>
+        <div style={{fontSize:10,color:C.textSec,letterSpacing:1,marginBottom:2}}>台灣大哥大 · 北一二C管理區</div>
+        <div style={{fontSize:22,fontWeight:900,color:C.textPri,marginBottom:18}}>即時回報登入</div>
+        <div style={{fontSize:11,color:C.textSec,marginBottom:6,fontWeight:700}}>請輸入回填密碼</div>
+        <input type="password" value={pw} autoFocus placeholder="密碼"
+          onChange={e => { setPw(e.target.value); setErr(false); }}
+          style={{...SI,fontSize:20,fontWeight:800,letterSpacing:1,borderColor:err?C.req:C.border,background:err?C.reqBg:"#fff"}}/>
+        {err && <div style={{fontSize:11,color:C.req,fontWeight:800,marginTop:7}}>密碼錯誤，請重新輸入</div>}
+        <button type="submit" style={{width:"100%",marginTop:16,padding:"12px 0",border:"none",borderRadius:8,background:C.accent,color:"#fff",fontSize:14,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 2px 8px ${C.accent}44`}}>
+          進入回填
+        </button>
+        <div style={{fontSize:10,color:C.textDim,marginTop:12,lineHeight:1.5}}>密碼正確後，本分頁重新整理時會保留登入狀態。</div>
+      </form>
+    </div>
+  );
+}
+
+// ══ Report App ══════════════════════════════════════════════
+function ReportApp() {
   const { useState, useEffect, useCallback } = React;
   const [view,    setView]    = useState("input");
   const [store,   setStore]   = useState("");
@@ -1050,6 +1086,15 @@ function App() {
 }
 
 // Fireworks added to App render
+function App() {
+  const {useState} = React;
+  const [authed, setAuthed] = useState(() => {
+    try { return sessionStorage.getItem(AUTH_KEY) === "1"; }
+    catch { return false; }
+  });
+  return authed ? <ReportApp/> : <PasswordGate onUnlock={() => setAuthed(true)}/>;
+}
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App/>);
 </script>
