@@ -63,10 +63,10 @@ function renderDraftMatches(){
 async function syncInventory(){
   const rows=await demandApi({action:"inventory"});
   const map=new Map();
-  let total=0,supportTotal=0;rows.forEach(x=>{const n=Number(x.quantity)||0,k=x.store+"|"+x.model+"|"+x.capacity+"|"+x.color,tq=Math.min(n,TRANSIT_QTY.get(k)||0);total+=n;supportTotal+=Math.max(0,n-tq);
-    const k=x.model+"|"+x.capacity+"|"+x.color;
-    if(!map.has(k))map.set(k,[x.model,x.capacity,x.color,Array(D.stores.length).fill(0)]);
-    const i=D.stores.indexOf(x.store);if(i>=0)map.get(k)[3][i]=Number(x.quantity)||0;
+  let total=0,supportTotal=0;rows.forEach(x=>{const n=Number(x.quantity)||0,stockKey=x.store+"|"+x.model+"|"+x.capacity+"|"+x.color,tq=Math.min(n,TRANSIT_QTY.get(stockKey)||0);total+=n;supportTotal+=Math.max(0,n-tq);
+    const skuKey=x.model+"|"+x.capacity+"|"+x.color;
+    if(!map.has(skuKey))map.set(skuKey,[x.model,x.capacity,x.color,Array(D.stores.length).fill(0)]);
+    const i=D.stores.indexOf(x.store);if(i>=0)map.get(skuKey)[3][i]=Number(x.quantity)||0;
   });
   D.rows=Array.from(map.values());if($("sharedTotal"))$("sharedTotal").textContent=supportTotal;
   render(false);renderDraftMatches();
