@@ -79,7 +79,7 @@ async function loadDemands(){
     $("dList").innerHTML=active.length?active.map(x=>{
       const supported=x.status==="supported";
       const visual=x.status==="supported"?"supported":x.handling_state==="ordered"?"ordered":x.status==="completed"||x.handling_state==="handled"?"handled":"pending";
-      return '<article class="dcard"><div class="dtop"><div><div class="dstore">'+h(x.store)+'</div><div class="ditem">'+(x.model==="Max"?"Pro Max":"Pro")+' '+h(x.capacity)+' · '+h(x.color)+' × '+(Number(x.quantity)||1)+'</div></div><span class="status '+visual+'">'+statusText(x)+'</span></div><div class="dtime">'+fmtTime(x.created_at)+' 回報</div>'+(x.note?'<div class="dnote">需求備註：'+h(x.note)+'</div>':'')+(x.handling_note?'<div class="dnote">處理說明：'+h(x.handling_note)+'</div>':'')+(supported?'<div class="dnote">✅ '+h(x.support_store)+' 已調動 '+h(x.allocated_color||x.color)+' × '+(Number(x.allocated_quantity)||x.quantity)+'</div>':'')+(x.status==="pending"?availabilityHTML(x,x.id):'')+(adminMode&&x.status==="pending"?'<div class="dactions">'+(x.handling_state!=="ordered"?'<button class="orderbtn" data-action="ordered" data-id="'+h(x.id)+'">已申請待配貨</button>':'')+'<button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button><button class="support" data-action="complete" data-id="'+h(x.id)+'">✅ 完成</button></div>':'')+(adminMode&&supported?'<div class="dactions"><button class="cancelbtn" data-action="cancel" data-id="'+h(x.id)+'">取消調動・庫存加回</button><button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button><button class="support" data-action="complete" data-id="'+h(x.id)+'">✅ 完成</button></div>':'')+'</article>';
+      return '<article class="dcard"><div class="dtop"><div><div class="dstore">'+h(x.store)+'</div><div class="ditem">'+(x.model==="Max"?"Pro Max":"Pro")+' '+h(x.capacity)+' · '+h(x.color)+' × '+(Number(x.quantity)||1)+'</div></div><span class="status '+visual+'">'+statusText(x)+'</span></div><div class="dtime">'+fmtTime(x.created_at)+' 回報</div>'+(x.note?'<div class="dnote">需求備註：'+h(x.note)+'</div>':'')+(x.handling_note?'<div class="dnote">處理說明：'+h(x.handling_note)+'</div>':'')+(supported?'<div class="dnote">✅ '+h(x.support_store)+' 已調動 '+h(x.allocated_color||x.color)+' × '+(Number(x.allocated_quantity)||x.quantity)+'</div>':'')+(x.status==="pending"?availabilityHTML(x,x.id):'')+(x.status!=="completed"?'<div class="dactions">'+(adminMode&&x.status==="pending"&&x.handling_state!=="ordered"?'<button class="orderbtn" data-action="ordered" data-id="'+h(x.id)+'">已申請待配貨</button>':'')+(adminMode?'<button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button>':'')+(adminMode&&supported?'<button class="cancelbtn" data-action="cancel" data-id="'+h(x.id)+'">取消調動・庫存加回</button>':'')+'<button class="support completebtn" data-action="complete" data-id="'+h(x.id)+'">✅ 完成</button></div>':'')+'</article>';
     }).join(""):'<div class="dempty">目前沒有待支援需求。</div>';
     $("dMsg").textContent="";
   }catch(e){$("dList").innerHTML='<div class="dempty">需求讀取失敗，請按重新整理。</div>';$("dMsg").className="dmsg err";$("dMsg").textContent=e.message||"讀取失敗"}
@@ -118,7 +118,13 @@ $("dSubmit").onclick=submitDemand;$("dRefresh").onclick=refreshAll;
 ["dStore","dModel","dCap","dColor","dQty"].forEach(id=>$(id).addEventListener("change",renderDraftMatches));
 $("dQty").addEventListener("input",renderDraftMatches);
 $("dList").addEventListener("click",async e=>{
-  const b=e.target.closest("button[data-action]");if(!b)return;b.disabled=true;
+  const b=e.target.closest("button[data-action]");if(!b)return;
+  if(b.dataset.action==="complete"&&!adminMode){
+    $("adminLogin").hidden=false;$("adminPass").focus();
+    $("dMsg").className="dmsg err";$("dMsg").textContent="請先登入管理員，再按一次「✅ 完成」。";
+    return;
+  }
+  b.disabled=true;
   try{
     if(b.dataset.action==="ordered"){
       const note=prompt("請輸入申請配貨說明：","已協助申請配貨，待配貨通知");
