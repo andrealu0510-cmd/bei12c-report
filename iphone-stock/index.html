@@ -35,7 +35,7 @@ async function demandApi(payload,adminOverride=""){
   return await r.json();
 }
 function fmtTime(v){try{return new Intl.DateTimeFormat("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(v))}catch(e){return""}}
-function statusText(x){if(x.status==="supported")return "已調動";if(x.handling_state==="ordered")return "已申請待配貨";if(x.status==="completed"||x.handling_state==="handled")return "已處理";return "待支援"}
+function statusText(x){if(x.status==="supported")return "已調動";if(x.handling_state==="ordered")return "已申請待配貨";if(x.status==="completed"&&x.handling_note==="已完成需求")return "已完成";if(x.status==="completed"||x.handling_state==="handled")return "已處理";return "待支援"}
 function localCandidates(x){
   const qty=Math.max(1,Number(x.quantity)||1),out=[];
   for(const r of D.rows){
@@ -79,7 +79,7 @@ async function loadDemands(){
     $("dList").innerHTML=active.length?active.map(x=>{
       const supported=x.status==="supported";
       const visual=x.status==="supported"?"supported":x.handling_state==="ordered"?"ordered":x.status==="completed"||x.handling_state==="handled"?"handled":"pending";
-      return '<article class="dcard"><div class="dtop"><div><div class="dstore">'+h(x.store)+'</div><div class="ditem">'+(x.model==="Max"?"Pro Max":"Pro")+' '+h(x.capacity)+' · '+h(x.color)+' × '+(Number(x.quantity)||1)+'</div></div><span class="status '+visual+'">'+statusText(x)+'</span></div><div class="dtime">'+fmtTime(x.created_at)+' 回報</div>'+(x.note?'<div class="dnote">需求備註：'+h(x.note)+'</div>':'')+(x.handling_note?'<div class="dnote">處理說明：'+h(x.handling_note)+'</div>':'')+(supported?'<div class="dnote">✅ '+h(x.support_store)+' 已調動 '+h(x.allocated_color||x.color)+' × '+(Number(x.allocated_quantity)||x.quantity)+'</div>':'')+(x.status==="pending"?availabilityHTML(x,x.id):'')+(adminMode&&x.status==="pending"?'<div class="dactions">'+(x.handling_state!=="ordered"?'<button class="orderbtn" data-action="ordered" data-id="'+h(x.id)+'">已申請待配貨</button>':'')+'<button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button></div>':'')+(adminMode&&supported?'<div class="dactions"><button class="cancelbtn" data-action="cancel" data-id="'+h(x.id)+'">取消調動・庫存加回</button><button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button></div>':'')+'</article>';
+      return '<article class="dcard"><div class="dtop"><div><div class="dstore">'+h(x.store)+'</div><div class="ditem">'+(x.model==="Max"?"Pro Max":"Pro")+' '+h(x.capacity)+' · '+h(x.color)+' × '+(Number(x.quantity)||1)+'</div></div><span class="status '+visual+'">'+statusText(x)+'</span></div><div class="dtime">'+fmtTime(x.created_at)+' 回報</div>'+(x.note?'<div class="dnote">需求備註：'+h(x.note)+'</div>':'')+(x.handling_note?'<div class="dnote">處理說明：'+h(x.handling_note)+'</div>':'')+(supported?'<div class="dnote">✅ '+h(x.support_store)+' 已調動 '+h(x.allocated_color||x.color)+' × '+(Number(x.allocated_quantity)||x.quantity)+'</div>':'')+(x.status==="pending"?availabilityHTML(x,x.id):'')+(adminMode&&x.status==="pending"?'<div class="dactions">'+(x.handling_state!=="ordered"?'<button class="orderbtn" data-action="ordered" data-id="'+h(x.id)+'">已申請待配貨</button>':'')+'<button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button><button class="support" data-action="complete" data-id="'+h(x.id)+'">✅ 完成</button></div>':'')+(adminMode&&supported?'<div class="dactions"><button class="cancelbtn" data-action="cancel" data-id="'+h(x.id)+'">取消調動・庫存加回</button><button class="handlebtn" data-action="handle" data-id="'+h(x.id)+'">已處理・填說明</button><button class="support" data-action="complete" data-id="'+h(x.id)+'">✅ 完成</button></div>':'')+'</article>';
     }).join(""):'<div class="dempty">目前沒有待支援需求。</div>';
     $("dMsg").textContent="";
   }catch(e){$("dList").innerHTML='<div class="dempty">需求讀取失敗，請按重新整理。</div>';$("dMsg").className="dmsg err";$("dMsg").textContent=e.message||"讀取失敗"}
@@ -134,10 +134,7 @@ $("dList").addEventListener("click",async e=>{
     }else if(b.dataset.action==="cancel"){
       await demandApi({action:"cancel_allocation",id:b.dataset.id});
     }else if(b.dataset.action==="complete"){
-      const note=prompt("請輸入處理說明（必填）：","已完成需求");
-      if(note===null){b.disabled=false;return}
-      if(!note.trim()){alert("請填寫處理說明");b.disabled=false;return}
-      await demandApi({action:"handle",id:b.dataset.id,handling_note:note.trim()});
+      await demandApi({action:"complete",id:b.dataset.id});
     }
     await refreshAll();
   }catch(err){alert((err.message||"更新失敗"));b.disabled=false}
