@@ -185,7 +185,26 @@ function get(){let p=parse($("q").value);return D.rows.filter(r=>(!p.model||r[0]
 function state(){let p=new URLSearchParams;if($("q").value)p.set("q",$("q").value);ids.forEach(id=>{if($(id).value)p.set(id,$(id).value)});return p.toString()}
 function render(save=true){cur=get();let stores=new Set(cur.flatMap(x=>x.ss.map(s=>s.n))).size,qty=cur.reduce((a,x)=>a+x.ss.reduce((b,s)=>b+s.q,0),0);$("title").textContent=cur.length?"找到 "+stores+" 家有貨店點":"目前無庫存";$("meta").textContent=cur.length+" 種機款配色 · 共用庫存 "+qty+" 支";$("copy").disabled=!cur.length;$("results").innerHTML=cur.length?cur.map(x=>'<article class="card"><div class="head"><div><h3>'+(x.r[0]==="Max"?"Pro Max":"Pro")+' '+x.r[1]+'</h3><div class="color">'+x.r[2]+'</div></div><span class="total">'+x.ss.reduce((a,s)=>a+s.q,0)+' 支 / '+x.ss.length+' 店</span></div>'+x.ss.map(st=>'<div class="row"><span>'+st.n+areaBadge(st.n,x.r[0],x.r[1],x.r[2])+(st.tq?'<span class="transitbadge">在途 '+st.tq+'</span>':'')+'</span><span class="stockact"><span class="qty">'+st.q+' 支'+(st.tq&&st.available?'<small style="font-size:11px;color:#657984">（新品 '+st.available+'／在途 '+st.tq+'）</small>':'')+'</span>'+(adminMode&&st.available>0?'<button type="button" class="soldbtn" data-store="'+h(st.n)+'" data-model="'+h(x.r[0])+'" data-cap="'+h(x.r[1])+'" data-color="'+h(x.r[2])+'">已售出 −1</button>':'')+'</span></div>').join("")+'</article>').join(""):'<div class="empty"><h3>目前無符合條件的共用庫存</h3><p>此頁庫存由共用資料庫即時提供；沒有庫存就不會出現可調動按鈕。</p></div>';if(save)try{history.replaceState(null,"",location.pathname+(state()?"#"+state():""))}catch(e){}}
 function reset(){ $("q").value="";ids.forEach(id=>$(id).value="");render()}
-function txt(){return "📍北一二C｜庫存查詢\n資料日：2026/09/24 17:51｜最新117支｜可立即支援"+($("sharedTotal")?$("sharedTotal").textContent:"—")+"支\n查詢："+($("q").value||"篩選條件")+"\n\n"+cur.map(x=>"🔹 "+x.r[0]+"_"+x.r[1]+"-("+x.r[2]+")\n"+x.ss.map(s=>s.n+" × "+s.q).join("\n")).join("\n\n")+"\n\n※共用庫存僅供查詢；實際調動由管理員確認後才會扣庫存。"}
+function txt(){
+  const lines=[];
+  lines.push("📍北一二C｜iPhone 18 庫存查詢");
+  lines.push("資料日：2026/09/24 17:51");
+  lines.push("");
+  cur.forEach(x=>{
+    lines.push("🔹 "+x.r[0]+"_"+x.r[1]+"-("+x.r[2]+")");
+    x.ss.forEach(st=>{
+      const area=areaRemaining(st.n,x.r[0],x.r[1],x.r[2]);
+      const tags=[];
+      if(area>0)tags.push("【區貨"+(area>1?"×"+area:"")+"】");
+      if(st.tq>0)tags.push("【在途"+(st.tq>1?"×"+st.tq:"")+"】");
+      if(st.available>0)tags.push("【新品"+(st.available>1?"×"+st.available:"")+"】");
+      lines.push(st.n+" × "+st.q+" "+tags.join(""));
+    });
+    lines.push("");
+  });
+  lines.push("※【區貨】為指定區貨；【在途】尚未到店；【新品】為目前門市新品倉庫存。");
+  return lines.join("\n");
+}
 async function cp(t){try{await navigator.clipboard.writeText(t);alert("已複製")}catch(e){prompt("請複製以下內容",t)}}
 $("areaList").addEventListener("click",async e=>{
   const b=e.target.closest("button[data-area-sell]");if(!b)return;
