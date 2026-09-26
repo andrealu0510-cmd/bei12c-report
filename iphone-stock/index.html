@@ -31,7 +31,7 @@
 <div id="dMsg" class="dmsg"></div><div id="draftMatches" class="availbox"><div class="availtitle">目前可支援庫存</div><div class="availnone">載入中…</div></div>
 <div class="dboard"><div class="dboardhead"><h3>需求處理狀態</h3><button class="btn" id="dRefresh" type="button">重新整理</button></div><div id="dList" class="dlist"><div class="dempty">正在讀取需求…</div></div></div>
 </section>
-<section class="box"><div class="adminstock adminonly">🛠️ 管理員庫存異動｜既有庫存已售出，直接按各店庫存旁的「已售出 −1」；扣到 0 會自動移除。</div><label for="q">你要找哪一款？</label><input id="q" type="search" placeholder="例如：Max 256 銀" autocomplete="off"><p class="hint">支援「Max256銀」「Pro 512 紅」「Max 256 藍或銀」。</p><div id="stockMsg" class="stockmsg"></div><div class="filters"><label>機型<select id="model"><option value="">全部</option><option value="Max">Pro Max</option><option value="Pro">Pro</option></select></label><label>容量<select id="cap"><option value="">全部</option><option>256G</option><option>512G</option><option>1TB</option><option>2TB</option></select></label><label>顏色<select id="color"><option value="">全部</option><option>冰川藍</option><option>勃根地紅</option><option>黑</option><option>銀</option></select></label><label>店點<select id="store"><option value="">全部</option></select></label></div><div class="quick"><button data-q="Max 256 藍或銀">東區需求｜Max 256 藍／銀</button><button data-q="Max 256 黑">後山需求｜Max 256 黑</button><button data-q="Max 512 黑">德東需求｜Max 512 黑</button></div></section><div class="bar"><div><h2 id="title">查詢結果</h2><div class="meta" id="meta"></div></div><div class="actions"><button type="button" class="btn dark" id="copy">複製群組文字</button><button class="btn" id="link">複製查詢連結</button><button class="btn" id="reset">清除</button></div></div><div id="results" class="grid"></div><footer>來源：INVRC101_CSV｜列印時間 2026/09/26 09:56。最新庫存合計 74 支，其中新品倉 73 支、在途倉 1 支。相較上一版 102 支，淨減 28 支；區貨標記與已銷售紀錄保留，複製文字持續標示【區貨／在途／新品】。版本 2026-09-26-01｜文字工具 v2026.09.26-2。</footer></main><script>
+<section class="box"><div class="adminstock adminonly">🛠️ 管理員庫存異動｜既有庫存已售出，直接按各店庫存旁的「已售出 −1」；扣到 0 會自動移除。</div><label for="q">你要找哪一款？</label><input id="q" type="search" placeholder="例如：Max 256 銀" autocomplete="off"><p class="hint">支援「Max256銀」「Pro 512 紅」「Max 256 藍或銀」。</p><div id="stockMsg" class="stockmsg"></div><div class="filters"><label>機型<select id="model"><option value="">全部</option><option value="Max">Pro Max</option><option value="Pro">Pro</option></select></label><label>容量<select id="cap"><option value="">全部</option><option>256G</option><option>512G</option><option>1TB</option><option>2TB</option></select></label><label>顏色<select id="color"><option value="">全部</option><option>冰川藍</option><option>勃根地紅</option><option>黑</option><option>銀</option></select></label><label>店點<select id="store"><option value="">全部</option></select></label></div><div class="quick"><button data-q="Max 256 藍或銀">東區需求｜Max 256 藍／銀</button><button data-q="Max 256 黑">後山需求｜Max 256 黑</button><button data-q="Max 512 黑">德東需求｜Max 512 黑</button></div></section><div class="bar"><div><h2 id="title">查詢結果</h2><div class="meta" id="meta"></div></div><div class="actions"><button type="button" class="btn dark" id="copy">產生群組文字</button><button class="btn" id="link">複製查詢連結</button><button class="btn" id="reset">清除</button></div></div><div id="results" class="grid"></div><footer>來源：INVRC101_CSV｜列印時間 2026/09/26 09:56。最新庫存合計 74 支，其中新品倉 73 支、在途倉 1 支。相較上一版 102 支，淨減 28 支；區貨標記與已銷售紀錄保留，複製文字持續標示【區貨／在途／新品】。版本 2026-09-26-01｜文字工具 v2026.09.26-2。</footer></main><script>
 const PASS_HASH="d9b5008e5a53b2cce63cbc4b3cfd370f81a57b214a2e512c5eb4b8de02bb46d6";async function sha256(v){const b=new TextEncoder().encode(v),h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}function unlock(pass){document.body.classList.remove("lock");document.getElementById("gate").hidden=true;try{sessionStorage.setItem("n12c-auth","1");if(pass)sessionStorage.setItem("n12c-pass",pass)}catch(e){}setTimeout(bootApp,50)}async function login(){const i=document.getElementById("gatePass"),e=document.getElementById("gateErr");e.textContent="";if(!i.value){e.textContent="請輸入密碼";i.focus();return}try{if(await sha256(i.value)===PASS_HASH){unlock(i.value);i.value=""}else{e.textContent="密碼錯誤，請重新輸入";i.select()}}catch(err){e.textContent="此瀏覽器無法驗證，請改用 Chrome / Safari 開啟"}}document.getElementById("gateBtn").addEventListener("click",login);document.getElementById("gatePass").addEventListener("keydown",e=>{if(e.key==="Enter")login()});try{if(sessionStorage.getItem("n12c-auth")==="1"&&sessionStorage.getItem("n12c-pass"))unlock()}catch(e){}
 const API="https://zgpuuliqtrpdjerniyio.supabase.co/functions/v1/demand-api";
 const D={stores:["士林夜市","天母德行東","台北公館","台北天母","台北忠孝東","台北東區","台北南京東","台北後山埤","台北新站前"],rows:[["Max","1TB","勃根地紅",[1,0,0,0,1,0,0,0,0]],["Max","1TB","銀",[0,0,0,0,1,0,0,0,0]],["Max","256G","勃根地紅",[2,0,0,1,2,2,0,5,0]],["Max","256G","黑",[0,0,0,0,1,0,0,0,1]],["Max","2TB","冰川藍",[1,0,0,0,1,0,0,0,0]],["Max","2TB","勃根地紅",[0,0,0,0,0,1,1,0,0]],["Max","512G","冰川藍",[0,0,0,2,1,2,1,0,1]],["Max","512G","勃根地紅",[4,0,3,1,5,3,3,2,1]],["Max","512G","銀",[1,0,0,0,0,0,0,0,1]],["Max","512G","黑",[0,0,1,1,0,0,0,0,0]],["Pro","256G","勃根地紅",[1,0,4,2,3,1,2,1,2]],["Pro","2TB","銀",[0,0,0,0,1,0,0,0,0]],["Pro","512G","勃根地紅",[0,0,0,1,0,0,0,0,0]]]};
@@ -209,9 +209,10 @@ function render(save=true){cur=get();let stores=new Set(cur.flatMap(x=>x.ss.map(
 function reset(){ $("q").value="";ids.forEach(id=>$(id).value="");render()}
 // Text preview is synchronous and does not depend on clipboard permission.
 function txt(){
-  if(!inventoryReady)throw new Error("尚未取得共用庫存，請按「重新整理」後再產生文字。");
   const selected=get();
-  if(!selected.length)throw new Error("目前篩選沒有庫存，請清除篩選再複製。");
+  if(!selected.length){
+    return "📍北一二C｜iPhone 18 庫存查詢\n目前篩選沒有庫存，請清除篩選後再試。";
+  }
   const date=(document.querySelector('.date')?.textContent||'').replace(/^資料日\s*/, '');
   const count=selected.reduce((n,x)=>n+x.ss.reduce((v,s)=>v+s.q,0),0);
   const transit=selected.reduce((n,x)=>n+x.ss.reduce((v,s)=>v+s.tq,0),0);
@@ -238,14 +239,23 @@ function ensureCopyPanel(){
   let panel=$('groupTextPanel');
   if(panel)return panel;
   panel=document.createElement('section');
-  panel.id='groupTextPanel';panel.className='copy-panel';panel.hidden=true;
+  panel.id='groupTextPanel';panel.className='copy-panel';panel.hidden=false;
   panel.setAttribute('aria-labelledby','groupTextTitle');
-  panel.innerHTML='<div class="copy-panel-head"><h3 id="groupTextTitle">群組文字</h3><button type="button" class="btn" id="copyPanelClose">收起</button></div><p class="copy-help">文字已顯示在下方。可以一鍵複製，或全選後長按複製；電腦可按 Ctrl+C／⌘C。</p><div class="copy-tools"><button type="button" class="btn dark" id="copyPanelCopy">一鍵複製</button><button type="button" class="btn" id="copyPanelSelect">全選文字</button><button type="button" class="btn" id="copyPanelDownload">下載文字檔</button></div><p id="copyPanelStatus" role="status" aria-live="polite"></p><textarea id="groupTextArea" readonly spellcheck="false" aria-label="可全選複製的群組文字"></textarea><small class="copy-version">文字工具 v2026.09.26-2</small>';
+  panel.innerHTML='<div class="copy-panel-head"><h3 id="groupTextTitle">群組文字</h3><button type="button" class="btn" id="copyPanelClose">回到按鈕</button></div><p class="copy-help"><strong>請直接長按下方文字複製。</strong>「一鍵複製」若被手機瀏覽器阻擋，文字仍會完整保留在下方。</p><div class="copy-tools"><button type="button" class="btn dark" id="copyPanelCopy">一鍵複製</button><button type="button" class="btn" id="copyPanelSelect">全選文字</button><button type="button" class="btn" id="copyPanelDownload">下載文字檔</button><button type="button" class="btn" id="copyPanelOpenText">開啟純文字</button></div><p id="copyPanelStatus" role="status" aria-live="polite"></p><textarea id="groupTextArea" spellcheck="false" aria-label="可全選複製的群組文字"></textarea><small class="copy-version">文字工具 v2026.09.26-2</small>';
   const anchor=$('results');
   (anchor?.parentNode||document.querySelector('main')).insertBefore(panel,anchor||null);
-  $('copyPanelClose').onclick=()=>{panel.hidden=true;copyAttempt++;$('copy').focus();};
+  $('copyPanelClose').onclick=()=>{copyAttempt++;$('copy').focus();panel.scrollIntoView({block:'start'});};
   $('copyPanelSelect').onclick=()=>{selectCopyText();$('copyPanelStatus').textContent='已全選文字，請長按選取區域選「複製」，或按 Ctrl+C／⌘C。';};
   $('copyPanelCopy').onclick=tryCopyPanel;
+  $('copyPanelOpenText').onclick=()=>{
+    const text=$('groupTextArea').value;
+    const w=window.open('','_blank');
+    if(!w){$('copyPanelStatus').textContent='瀏覽器阻擋新視窗，請直接長按下方文字複製。';return;}
+    w.document.open();
+    w.document.write('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>北一二C 群組文字</title><pre style="white-space:pre-wrap;word-break:break-word;font:18px/1.7 -apple-system,BlinkMacSystemFont,Segoe UI,Microsoft JhengHei,sans-serif;padding:18px;margin:0"></pre>');
+    w.document.close();
+    w.document.querySelector('pre').textContent=text;
+  };
   $('copyPanelDownload').onclick=()=>{
     const text=$('groupTextArea').value;
     if(!text)return;
@@ -297,10 +307,13 @@ function cp(text,title='群組文字',autoCopy=true){
   $('groupTextTitle').textContent=title;
   $('groupTextArea').value=String(text||'');
   const empty=!$('groupTextArea').value;
-  ['copyPanelCopy','copyPanelSelect','copyPanelDownload'].forEach(id=>$(id).disabled=empty);
+  ['copyPanelCopy','copyPanelSelect','copyPanelDownload','copyPanelOpenText'].forEach(id=>$(id).disabled=empty);
   $('copyPanelStatus').textContent=empty?'尚未產生可複製的文字。':'可直接全選文字，或按「一鍵複製」。';
   panel.scrollIntoView({block:'start'});
-  if(autoCopy&&!empty)tryCopyPanel();
+  if(!empty){
+    setTimeout(()=>{selectCopyText();},80);
+    if(autoCopy)tryCopyPanel();
+  }
 }
 function copyGroupText(){
   try{cp(txt());}
