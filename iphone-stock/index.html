@@ -201,7 +201,29 @@ function txt(){
   lines.push("※【區貨】為指定區貨；【在途】尚未到店；【新品】為目前門市新品倉庫存。");
   return lines.join("\n");
 }
-async function cp(t){try{await navigator.clipboard.writeText(t);alert("已複製")}catch(e){prompt("請複製以下內容",t)}}
+async function cp(t){
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      await navigator.clipboard.writeText(t);
+      alert("已複製，可直接貼到群組");
+      return;
+    }
+  }catch(e){}
+  let box=document.getElementById("copyFallback");
+  if(!box){
+    box=document.createElement("div");
+    box.id="copyFallback";
+    box.style.cssText="position:fixed;inset:0;z-index:99999;background:#172d3888;display:flex;align-items:center;justify-content:center;padding:18px";
+    box.innerHTML='<div style="width:min(680px,96vw);background:#fff;border-radius:16px;padding:18px;box-shadow:0 12px 40px #0003"><h3 style="margin:0 0 8px;font-size:22px">複製群組文字</h3><p style="margin:0 0 10px;color:#657984;font-size:14px">若瀏覽器沒有自動複製，請按「全選」後自行複製。</p><textarea id="copyFallbackText" readonly style="width:100%;height:320px;padding:12px;border:1px solid #c8d5db;border-radius:10px;font:15px/1.55 -apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans TC,Microsoft JhengHei,sans-serif"></textarea><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button id="copyFallbackSelect" class="btn">全選</button><button id="copyFallbackTry" class="btn dark">再試一次複製</button><button id="copyFallbackClose" class="btn">關閉</button></div></div>';
+    document.body.appendChild(box);
+    document.getElementById("copyFallbackClose").onclick=()=>box.remove();
+    document.getElementById("copyFallbackSelect").onclick=()=>{const ta=document.getElementById("copyFallbackText");ta.focus();ta.select();};
+    document.getElementById("copyFallbackTry").onclick=async()=>{const ta=document.getElementById("copyFallbackText");ta.focus();ta.select();try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(ta.value);alert("已複製，可直接貼到群組");box.remove();}else{document.execCommand("copy");alert("已複製，可直接貼到群組");}}catch(e){alert("請按全選後使用 Ctrl+C / 長按複製");}};
+  }
+  document.getElementById("copyFallbackText").value=t;
+  const ta=document.getElementById("copyFallbackText");
+  ta.focus();ta.select();
+}
 $("areaList").addEventListener("click",async e=>{
   const b=e.target.closest("button[data-area-sell]");if(!b)return;
   if(!adminMode){
