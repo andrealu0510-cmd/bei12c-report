@@ -11,10 +11,28 @@
 #groupTextArea{display:block;box-sizing:border-box;width:100%;height:340px;height:min(52vh,460px);min-height:220px;border:1px solid #adc1cb;border-radius:10px;padding:13px;background:white;color:#17303b;font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;resize:vertical;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .copy-version{display:block;color:#657984;font-size:12px;margin-top:8px}
 @media(max-width:650px){.copy-panel{padding:14px}.copy-tools .btn{flex:1 1 auto}.stockact{flex-wrap:wrap;justify-content:flex-end}.row>span:first-child{min-width:0}}
-</style><body class="lock"><section id="gate" class="gate" aria-label="密碼登入"><div class="gatebox"><span class="logo">N12C</span><h2>北一二C｜庫存查詢</h2><p>請輸入密碼後進入庫存查詢頁。</p><label for="gatePass">登入密碼</label><input id="gatePass" type="password" autocomplete="current-password" placeholder="請輸入密碼"><button id="gateBtn" class="gatebtn" type="button">進入查詢</button><div id="gateErr" class="gateerr" role="alert"></div></div></section><header><div class="top"><div><span class="tag">N12C</span> 北一二C｜庫存查詢</div><span class="date">資料日 2026/10/02</span></div></header><main class="w"><h1>輸入機款，找到有貨店。</h1><p class="lead">型號、容量、顏色，不必再逐店翻表。</p><div class="notice"><strong>目前為全區共用庫存。</strong> 門市可查詢及提出需求；只有管理員確認調動後，系統才會即時扣除來源店庫存並留下紀錄。</div><div class="summary"><div class="sum"><b>43</b><span>上一版庫存</span></div><div class="sum"><b>44</b><span>最新庫存總數</span></div><div class="sum"><b>+1</b><span>本次淨變化</span></div><div class="sum"><b id="sharedTotal">41</b><span>目前現貨</span></div></div><div class="transitbox">🚚 <strong>在途 3 支</strong>｜台北忠孝東：Pro Max 512G 黑 ×1｜台北東區：Pro Max 512G 銀 ×1｜士林夜市：Pro Max 256G 冰川藍 ×1（同機款另有現貨 ×1）。在途不列入現貨。</div><section class="sales"><div class="saleshead"><div><h2>📊 上次 vs 本次</h2><div class="salesnote">上一版 43 支 → 10/2 最新 44 支，淨增加 1 支。</div></div><b>本次淨增 1 支</b></div><div class="salesgrid"><div class="saleitem"><b>台北後山埤</b><span>+8 <small>支</small></span></div><div class="saleitem"><b>士林夜市</b><span>+2 <small>支</small></span></div><div class="saleitem"><b>台北南京東</b><span>+1 <small>支</small></span></div><div class="saleitem"><b>台北忠孝東</b><span>−2 <small>支</small></span></div><div class="saleitem"><b>台北天母</b><span>−3 <small>支</small></span></div><div class="saleitem"><b>台北公館</b><span>−1 <small>支</small></span></div><div class="saleitem"><b>台北東區</b><span>−1 <small>支</small></span></div><div class="saleitem"><b>台北新站前</b><span>−3 <small>支</small></span></div><div class="saleitem"><b>天母德行東</b><span>0 <small>支</small></span></div></div></section>
+
+.uploadbox{display:none;background:#fff;border:2px solid #b9ccd5;border-radius:16px;padding:18px;margin:14px 0 18px}
+.admin-mode .uploadbox{display:block}
+.uploadhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}.uploadhead h3{margin:0;font-size:23px}.uploadsub{font-size:13px;color:#657984}
+.uploadcontrols{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.filepick{display:inline-flex;align-items:center;gap:8px;border:1px solid #c8d5db;border-radius:10px;padding:9px 12px;background:#f8fafb;font-size:15px;font-weight:800;cursor:pointer}.filepick input{display:none}
+.uploadstatus{font-size:14px;color:#526872;margin-top:10px;white-space:pre-wrap}.uploadstatus.err{color:#a83d28}.uploadstatus.ok{color:#12644d}
+.uploadpreview{margin-top:12px;padding:12px;border:1px solid #dce5e9;border-radius:12px;background:#fbfdfe}.uploadstats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}.uploadstat{background:#fff;border:1px solid #dce5e9;border-radius:9px;padding:7px 10px;font-size:13px}.uploadstores{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:13px}.uploadstore{display:flex;justify-content:space-between;padding:6px 8px;background:white;border:1px solid #e5ecef;border-radius:8px}
+@media(max-width:650px){.uploadstores{grid-template-columns:1fr 1fr}.uploadcontrols .btn{flex:1}}
+</style><body class="lock"><section id="gate" class="gate" aria-label="密碼登入"><div class="gatebox"><span class="logo">N12C</span><h2>北一二C｜庫存查詢</h2><p>請輸入密碼後進入庫存查詢頁。</p><label for="gatePass">登入密碼</label><input id="gatePass" type="password" autocomplete="current-password" placeholder="請輸入密碼"><button id="gateBtn" class="gatebtn" type="button">進入查詢</button><div id="gateErr" class="gateerr" role="alert"></div></div></section><header><div class="top"><div><span class="tag">N12C</span> 北一二C｜庫存查詢</div><span class="date">資料日 2026/10/02</span></div></header><main class="w"><h1>輸入機款，找到有貨店。</h1><p class="lead">型號、容量、顏色，不必再逐店翻表。</p><div class="notice"><strong>目前為全區共用庫存。</strong> 門市可查詢及提出需求；只有管理員確認調動後，系統才會即時扣除來源店庫存並留下紀錄。</div><div class="summary"><div class="sum"><b id="previousTotal">43</b><span>上一版庫存</span></div><div class="sum"><b id="latestTotal">44</b><span>最新庫存總數</span></div><div class="sum"><b id="deltaTotal">+1</b><span>本次淨變化</span></div><div class="sum"><b id="sharedTotal">41</b><span>目前現貨</span></div></div><div class="transitbox">🚚 <strong>在途 3 支</strong>｜台北忠孝東：Pro Max 512G 黑 ×1｜台北東區：Pro Max 512G 銀 ×1｜士林夜市：Pro Max 256G 冰川藍 ×1（同機款另有現貨 ×1）。在途不列入現貨。</div><section class="sales" id="diffSection"><div class="saleshead"><div><h2>📊 上次 vs 本次</h2><div class="salesnote" id="diffNote">上一版 43 支 → 10/2 最新 44 支，淨增加 1 支。</div></div><b id="diffHeadline">本次淨增 1 支</b></div><div class="salesgrid" id="diffGrid"></div></section>
 <section class="demand" id="demandSection">
 <h2>📣 門市需求回報</h2><div class="sub">門市只負責提出需求；庫存調動與扣庫存僅限管理員執行。</div>
 <div class="adminbar"><span id="adminState" class="mode">👤 門市模式</span><button id="adminShow" type="button">管理員登入</button><div id="adminLogin" class="adminlogin" hidden><input id="adminPass" type="password" autocomplete="current-password" placeholder="管理員密碼"><button id="adminGo" class="go" type="button">確認</button></div><button id="adminOut" type="button" hidden>退出管理員</button></div>
+<section class="uploadbox" id="inventoryUploadBox">
+  <div class="uploadhead"><div><h3>📤 最新庫存上傳</h3><div class="uploadsub">支援 CSV、XLSX、XLS；自動抓「門市名稱／品名／倉別／數量」。</div></div><span class="uploadsub">僅管理員可更新</span></div>
+  <div class="uploadcontrols">
+    <label class="filepick">選擇庫存檔案<input id="inventoryFile" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label>
+    <button class="btn dark" id="inventoryUploadConfirm" type="button" disabled>確認更新庫存</button>
+    <button class="btn" id="inventoryUploadClear" type="button">清除</button>
+  </div>
+  <div class="uploadstatus" id="inventoryUploadStatus">選擇檔案後會先預覽，不會立即覆蓋。</div>
+  <div class="uploadpreview" id="inventoryUploadPreview" hidden></div>
+</section>
 <div class="dform">
 <label>需求店點<select id="dStore"></select></label>
 <label>機型<select id="dModel"><option value="Pro">Pro</option><option value="Max">Pro Max</option></select></label>
@@ -31,7 +49,7 @@
 const PASS_HASH="d9b5008e5a53b2cce63cbc4b3cfd370f81a57b214a2e512c5eb4b8de02bb46d6";async function sha256(v){const b=new TextEncoder().encode(v),h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join("")}function unlock(pass){document.body.classList.remove("lock");document.getElementById("gate").hidden=true;try{sessionStorage.setItem("n12c-auth","1");if(pass)sessionStorage.setItem("n12c-pass",pass)}catch(e){}setTimeout(bootApp,50)}async function login(){const i=document.getElementById("gatePass"),e=document.getElementById("gateErr");e.textContent="";if(!i.value){e.textContent="請輸入密碼";i.focus();return}try{if(await sha256(i.value)===PASS_HASH){unlock(i.value);i.value=""}else{e.textContent="密碼錯誤，請重新輸入";i.select()}}catch(err){e.textContent="此瀏覽器無法驗證，請改用 Chrome / Safari 開啟"}}document.getElementById("gateBtn").addEventListener("click",login);document.getElementById("gatePass").addEventListener("keydown",e=>{if(e.key==="Enter")login()});try{if(sessionStorage.getItem("n12c-auth")==="1"&&sessionStorage.getItem("n12c-pass"))unlock()}catch(e){}
 const API="https://zgpuuliqtrpdjerniyio.supabase.co/functions/v1/demand-api";
 const D={stores:["士林夜市","天母德行東","台北公館","台北天母","台北忠孝東","台北東區","台北南京東","台北後山埤","台北新站前"],rows:[["Max","1TB","勃根地紅",[1,0,0,0,0,0,0,0,0]],["Max","1TB","銀",[0,0,0,0,1,0,0,0,0]],["Max","256G","冰川藍",[2,0,1,1,0,1,2,4,0]],["Max","256G","勃根地紅",[0,0,0,0,0,1,0,0,0]],["Max","256G","黑",[0,1,1,0,0,0,0,2,1]],["Max","2TB","冰川藍",[1,0,0,0,1,0,0,0,0]],["Max","2TB","勃根地紅",[0,0,0,0,0,1,1,0,0]],["Max","512G","冰川藍",[0,2,0,0,0,0,1,1,0]],["Max","512G","勃根地紅",[0,0,2,1,2,0,1,0,1]],["Max","512G","銀",[0,0,0,1,0,1,0,0,0]],["Max","512G","黑",[0,0,0,0,1,0,0,0,0]],["Pro","256G","勃根地紅",[0,1,1,0,1,0,0,1,0]],["Pro","256G","黑",[1,0,0,0,0,0,0,0,0]],["Pro","2TB","銀",[0,0,0,0,1,0,0,0,0]],["Pro","512G","勃根地紅",[0,0,0,0,0,0,0,1,0]]]};
-const TRANSIT_QTY=new Map([["台北忠孝東|Max|512G|黑",1],["台北東區|Max|512G|銀",1],["士林夜市|Max|256G|冰川藍",1]]);
+let TRANSIT_QTY=new Map([["台北忠孝東|Max|512G|黑",1],["台北東區|Max|512G|銀",1],["士林夜市|Max|256G|冰川藍",1]]);
 const $=x=>document.getElementById(x), ids=["model","cap","color","store"];let cur=[],adminMode=false,areaStock=[],inventoryReady=false,areaReady=false;
 D.stores.forEach(s=>{$("store").insertAdjacentHTML("beforeend",'<option>'+s+'</option>');$("dStore").insertAdjacentHTML("beforeend",'<option>'+s+'</option>')});
 
@@ -72,17 +90,66 @@ function renderDraftMatches(){
   $("draftMatches").innerHTML='<div class="availtitle">目前可支援庫存</div>'+(cs.length?'<div class="availitems">'+cs.map(c=>'<span class="availchip">'+h(c.store)+'｜'+h(c.color)+'｜剩 '+c.quantity+' 支</span>').join("")+'</div>':'<div class="availnone">全區目前無可支援庫存</div>');
 }
 async function syncInventory(){
-  const rows=await demandApi({action:"inventory"});
+  const payload=await demandApi({action:"inventory"});
+  const rows=Array.isArray(payload)?payload:(payload?.rows||[]);
+  const previousRows=Array.isArray(payload?.previous_rows)?payload.previous_rows:[];
+  const meta=payload?.meta||null;
   if(!Array.isArray(rows))throw new Error("庫存資料格式不正確");
+  TRANSIT_QTY=new Map();
   const map=new Map();
-  let total=0,supportTotal=0;rows.forEach(x=>{const n=Number(x.quantity)||0,stockKey=x.store+"|"+x.model+"|"+x.capacity+"|"+x.color,tq=Math.min(n,TRANSIT_QTY.get(stockKey)||0);total+=n;supportTotal+=Math.max(0,n-tq);
+  let total=0,supportTotal=0,transitTotal=0;
+  rows.forEach(x=>{
+    const n=Number(x.quantity)||0,tq=Math.min(n,Number(x.transit_quantity)||0);
+    const stockKey=x.store+"|"+x.model+"|"+x.capacity+"|"+x.color;
+    if(tq>0)TRANSIT_QTY.set(stockKey,tq);
+    total+=n;transitTotal+=tq;supportTotal+=Math.max(0,n-tq);
     const skuKey=x.model+"|"+x.capacity+"|"+x.color;
     if(!map.has(skuKey))map.set(skuKey,[x.model,x.capacity,x.color,Array(D.stores.length).fill(0)]);
-    const i=D.stores.indexOf(x.store);if(i>=0)map.get(skuKey)[3][i]=Number(x.quantity)||0;
+    const i=D.stores.indexOf(x.store);if(i>=0)map.get(skuKey)[3][i]=n;
   });
-  D.rows=Array.from(map.values());inventoryReady=true;if($("sharedTotal"))$("sharedTotal").textContent=supportTotal;
+  D.rows=Array.from(map.values());inventoryReady=true;
+  renderSnapshotInfo(meta,rows,previousRows,total,transitTotal,supportTotal);
   render(false);renderDraftMatches();
 }
+function prettyReportDate(v){
+  const x=String(v||"").trim();
+  const m=x.match(/^(\d{4})(\d{2})(\d{2})(?:[_\s](\d{2}:\d{2}))?/);
+  if(m)return m[1]+"/"+m[2]+"/"+m[3]+(m[4]?" "+m[4]:"");
+  return x||"—";
+}
+function skuLabel(x){return (x.model==="Max"?"Pro Max":"Pro")+" "+x.capacity+" "+x.color}
+function renderSnapshotInfo(meta,rows,previousRows,total,transitTotal,availableTotal){
+  const previous=meta?Number(meta.previous_total)||0:previousRows.reduce((a,x)=>a+(Number(x.quantity)||0),0);
+  const delta=total-previous;
+  if($("previousTotal"))$("previousTotal").textContent=previous;
+  if($("latestTotal"))$("latestTotal").textContent=total;
+  if($("deltaTotal"))$("deltaTotal").textContent=(delta>0?"+":"")+delta;
+  if($("sharedTotal"))$("sharedTotal").textContent=availableTotal;
+  if(meta?.report_printed_at)document.querySelector(".date").textContent="資料日 "+prettyReportDate(meta.report_printed_at);
+
+  const trans=rows.filter(x=>(Number(x.transit_quantity)||0)>0);
+  const tb=document.querySelector(".transitbox");
+  if(tb){
+    tb.innerHTML=transitTotal?("🚚 <strong>在途 "+transitTotal+" 支</strong>｜"+trans.map(x=>x.store+"："+skuLabel(x)+" ×"+x.transit_quantity).join("｜")+"。在途不列入現貨。"):"🚚 <strong>目前無在途庫存</strong>";
+  }
+
+  const prevByStore=new Map(),nowByStore=new Map();
+  previousRows.forEach(x=>prevByStore.set(x.store,(prevByStore.get(x.store)||0)+(Number(x.quantity)||0)));
+  rows.forEach(x=>nowByStore.set(x.store,(nowByStore.get(x.store)||0)+(Number(x.quantity)||0)));
+  if($("diffNote"))$("diffNote").textContent="上一版 "+previous+" 支 → 最新 "+total+" 支，"+(delta>0?"淨增加 "+delta:delta<0?"淨減 "+Math.abs(delta):"總數不變")+"。";
+  if($("diffHeadline"))$("diffHeadline").textContent=delta>0?"本次淨增 "+delta+" 支":delta<0?"本次淨減 "+Math.abs(delta)+" 支":"本次總數不變";
+  if($("diffGrid")){
+    $("diffGrid").innerHTML=D.stores.map(store=>{
+      const d=(nowByStore.get(store)||0)-(prevByStore.get(store)||0);
+      return '<div class="saleitem"><b>'+h(store)+'</b><span>'+(d>0?"+":"")+d+' <small>支</small></span></div>';
+    }).join("");
+  }
+  const footer=document.querySelector("footer");
+  if(footer&&meta){
+    footer.textContent="來源："+(meta.source_file||"上傳庫存檔案")+"｜報表時間 "+prettyReportDate(meta.report_printed_at)+"。最新庫存 "+total+" 支，其中現貨 "+availableTotal+" 支、在途 "+transitTotal+" 支。相較上一版 "+previous+" 支，"+(delta>0?"淨增加 "+delta:delta<0?"淨減 "+Math.abs(delta):"總數不變")+" 支；區貨與已銷售紀錄保留。";
+  }
+}
+
 function areaRemaining(store,model,capacity,color){
   const x=areaStock.find(a=>a.store===store&&a.model===model&&a.capacity===capacity&&a.color===color);
   return x?Math.max(0,(Number(x.quantity)||0)-(Number(x.sold_quantity)||0)):0;
@@ -155,16 +222,153 @@ async function restoreAdmin(){
   if(!a){setAdminMode(false);return}
   try{await demandApi({action:"admin_check"},a);setAdminMode(true)}catch(e){try{sessionStorage.removeItem("n12c-admin")}catch(_){}setAdminMode(false)}
 }
+let pendingUpload=null;
+function parseCsvText(text){
+  const out=[];let row=[],field="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(quoted){
+      if(c==='"'&&n==='"'){field+='"';i++;}
+      else if(c==='"')quoted=false;
+      else field+=c;
+    }else{
+      if(c==='"')quoted=true;
+      else if(c===','){row.push(field);field="";}
+      else if(c==='\n'){row.push(field);out.push(row);row=[];field="";}
+      else if(c!=='\r')field+=c;
+    }
+  }
+  row.push(field);if(row.some(v=>String(v).trim()!==""))out.push(row);
+  return out;
+}
+function findReportDate(rows){
+  for(const row of rows){
+    for(let i=0;i<row.length;i++){
+      const v=String(row[i]??"").trim();
+      if(v.includes("列印日期")){
+        const same=v.replace(/^.*列印日期[：:]?\s*/,"").trim();
+        if(/^\d{8}/.test(same))return same;
+        for(let j=i+1;j<row.length;j++){const x=String(row[j]??"").trim();if(/^\d{8}/.test(x))return x;}
+      }
+    }
+  }
+  return "";
+}
+function normalizeInvColor(v){
+  const x=String(v||"");
+  if(/冰川藍|冰川蓝|藍|蓝/.test(x))return "冰川藍";
+  if(/勃根地紅|柏根地紅|櫻桃紅|樱桃红|紅|红/.test(x))return "勃根地紅";
+  if(/黑/.test(x))return "黑";
+  if(/銀|银/.test(x))return "銀";
+  return "";
+}
+function inventoryRowsFromMatrix(matrix,fileName){
+  const headerIndex=matrix.findIndex(row=>{
+    const cells=row.map(v=>String(v??"").trim());
+    return cells.includes("門市名稱")&&cells.includes("品名")&&cells.includes("倉別")&&cells.includes("數量");
+  });
+  if(headerIndex<0)throw new Error("找不到庫存明細表頭，需包含：門市名稱、品名、倉別、數量。");
+  const headers=matrix[headerIndex].map(v=>String(v??"").trim());
+  const ix=name=>headers.indexOf(name);
+  const storeI=ix("門市名稱"),productI=ix("品名"),warehouseI=ix("倉別"),qtyI=ix("數量"),regionI=ix("區域名稱");
+  const agg=new Map();let rawTotal=0,parsedCount=0;
+  for(const row of matrix.slice(headerIndex+1)){
+    const store=String(row[storeI]??"").trim(),product=String(row[productI]??"").trim(),warehouse=String(row[warehouseI]??"").trim();
+    if(!store||!product||!D.stores.includes(store))continue;
+    if(regionI>=0&&String(row[regionI]??"").trim()&&String(row[regionI]??"").trim()!=="北一二C")continue;
+    if(!/APPLE\s+iPhone\s+18\s+Pro/i.test(product))continue;
+    const model=/Pro\s*Max/i.test(product)?"Max":"Pro";
+    const cm=product.match(/_(256G|512G|1TB|2TB)-/i);if(!cm)continue;
+    const capacity=cm[1].toUpperCase();
+    const colorMatch=product.match(/-\(([^)]+)\)/);
+    const color=normalizeInvColor(colorMatch?.[1]||"");if(!color)continue;
+    const qty=Math.max(0,parseInt(String(row[qtyI]??"0").replace(/,/g,""),10)||0);if(!qty)continue;
+    const key=[store,model,capacity,color].join("|");
+    if(!agg.has(key))agg.set(key,{store,model,capacity,color,quantity:0,transit_quantity:0});
+    const x=agg.get(key);x.quantity+=qty;if(warehouse.includes("在途"))x.transit_quantity+=qty;
+    rawTotal+=qty;parsedCount++;
+  }
+  const rows=[...agg.values()];
+  if(!rows.length)throw new Error("沒有讀到北一二C的 iPhone 18 Pro / Pro Max 庫存。");
+  const reportDate=findReportDate(matrix);
+  let reportTotal=null;
+  for(const row of matrix){
+    if(row.some(v=>String(v??"").trim()==="合計:")){
+      const nums=row.map(v=>parseInt(String(v??"").replace(/,/g,""),10)).filter(Number.isFinite);
+      if(nums.length)reportTotal=nums[nums.length-1];
+    }
+  }
+  return {rows,reportDate,fileName,total:rawTotal,reportTotal,parsedCount};
+}
+async function loadXlsxLibrary(){
+  if(window.XLSX)return;
+  await new Promise((resolve,reject)=>{
+    const sc=document.createElement("script");sc.src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+    sc.onload=resolve;sc.onerror=()=>reject(new Error("Excel 解析元件載入失敗；可改存成 CSV 再上傳。"));document.head.appendChild(sc);
+  });
+}
+async function readInventoryFile(file){
+  const ext=(file.name.split(".").pop()||"").toLowerCase(),buf=await file.arrayBuffer();
+  if(ext==="csv"){
+    let text=new TextDecoder("utf-8").decode(buf);
+    if(!text.includes("門市名稱")){try{text=new TextDecoder("big5").decode(buf)}catch(e){}}
+    return inventoryRowsFromMatrix(parseCsvText(text),file.name);
+  }
+  if(!["xlsx","xls"].includes(ext))throw new Error("只支援 CSV、XLSX、XLS。");
+  await loadXlsxLibrary();
+  const wb=XLSX.read(buf,{type:"array"});
+  for(const name of wb.SheetNames){
+    const matrix=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,defval:"",raw:false});
+    try{return inventoryRowsFromMatrix(matrix,file.name)}catch(e){}
+  }
+  throw new Error("Excel 內找不到可辨識的庫存明細工作表。");
+}
+function renderUploadPreview(p){
+  const byStore=new Map();p.rows.forEach(x=>byStore.set(x.store,(byStore.get(x.store)||0)+x.quantity));
+  const transit=p.rows.reduce((a,x)=>a+x.transit_quantity,0);
+  const mismatch=p.reportTotal!=null&&p.reportTotal!==p.total;
+  $("inventoryUploadPreview").hidden=false;
+  $("inventoryUploadPreview").innerHTML='<div class="uploadstats"><span class="uploadstat">解析總數 <b>'+p.total+'</b></span><span class="uploadstat">現貨 <b>'+(p.total-transit)+'</b></span><span class="uploadstat">在途 <b>'+transit+'</b></span><span class="uploadstat">報表時間 <b>'+h(prettyReportDate(p.reportDate))+'</b></span></div>'+(mismatch?'<div class="uploadstatus err">⚠ 報表合計 '+p.reportTotal+'，逐筆解析 '+p.total+'，將以逐筆明細為準。</div>':'')+'<div class="uploadstores">'+D.stores.map(store=>'<div class="uploadstore"><span>'+h(store)+'</span><b>'+(byStore.get(store)||0)+'</b></div>').join("")+'</div>';
+}
+async function handleInventoryFile(file){
+  pendingUpload=null;$("inventoryUploadConfirm").disabled=true;$("inventoryUploadPreview").hidden=true;
+  $("inventoryUploadStatus").className="uploadstatus";$("inventoryUploadStatus").textContent="正在讀取 "+file.name+"…";
+  try{
+    const p=await readInventoryFile(file);pendingUpload=p;renderUploadPreview(p);
+    $("inventoryUploadConfirm").disabled=false;
+    $("inventoryUploadStatus").className="uploadstatus ok";$("inventoryUploadStatus").textContent="✅ 已讀取 "+p.total+" 支。確認預覽後按「確認更新庫存」。";
+  }catch(e){
+    $("inventoryUploadStatus").className="uploadstatus err";$("inventoryUploadStatus").textContent="❌ "+(e.message||"檔案讀取失敗");
+  }
+}
 async function adminLogin(){
   const p=$("adminPass").value;if(!p)return;
   $("adminGo").disabled=true;
-  try{await demandApi({action:"admin_check"},p);try{sessionStorage.setItem("n12c-admin",p)}catch(e){}$("adminPass").value="";setAdminMode(true);await loadDemands()}
+  try{await demandApi({action:"admin_check"},p);try{sessionStorage.setItem("n12c-admin",p)}catch(e){}$("adminPass").value="";setAdminMode(true);await refreshAll()}
   catch(e){alert("管理員密碼錯誤")}
   finally{$("adminGo").disabled=false}
 }
 $("adminShow").onclick=()=>{$("adminLogin").hidden=false;$("adminPass").focus()};
 $("adminGo").onclick=adminLogin;$("adminPass").onkeydown=e=>{if(e.key==="Enter")adminLogin()};
 $("adminOut").onclick=()=>{try{sessionStorage.removeItem("n12c-admin")}catch(e){}setAdminMode(false);loadDemands()};
+$("inventoryFile").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)handleInventoryFile(file);});
+$("inventoryUploadClear").onclick=()=>{pendingUpload=null;$("inventoryFile").value="";$("inventoryUploadPreview").hidden=true;$("inventoryUploadConfirm").disabled=true;$("inventoryUploadStatus").className="uploadstatus";$("inventoryUploadStatus").textContent="選擇檔案後會先預覽，不會立即覆蓋。";};
+$("inventoryUploadConfirm").onclick=async()=>{
+  if(!pendingUpload)return;
+  const b=$("inventoryUploadConfirm");b.disabled=true;
+  $("inventoryUploadStatus").className="uploadstatus";$("inventoryUploadStatus").textContent="正在更新共用庫存…";
+  try{
+    const result=await demandApi({action:"upload_inventory",rows:pendingUpload.rows,report_printed_at:pendingUpload.reportDate,source_file:pendingUpload.fileName});
+    const r=Array.isArray(result)?result[0]:result;
+    $("inventoryUploadStatus").className="uploadstatus ok";
+    $("inventoryUploadStatus").textContent="✅ 更新完成："+(r?.previous_total??"—")+" → "+(r?.total??pendingUpload.total)+" 支｜在途 "+(r?.transit_total??"—")+" 支";
+    await refreshAll();
+  }catch(e){
+    $("inventoryUploadStatus").className="uploadstatus err";$("inventoryUploadStatus").textContent="❌ "+(e.message||"更新失敗");
+    b.disabled=false;
+  }
+};
+
 $("dSubmit").onclick=submitDemand;$("dRefresh").onclick=refreshAll;
 ["dStore","dModel","dCap","dColor","dQty"].forEach(id=>$(id).addEventListener("change",renderDraftMatches));
 $("dQty").addEventListener("input",renderDraftMatches);
@@ -236,7 +440,7 @@ function ensureCopyPanel(){
   panel=document.createElement('section');
   panel.id='groupTextPanel';panel.className='copy-panel';panel.hidden=false;
   panel.setAttribute('aria-labelledby','groupTextTitle');
-  panel.innerHTML='<div class="copy-panel-head"><h3 id="groupTextTitle">群組文字</h3><button type="button" class="btn" id="copyPanelClose">回到按鈕</button></div><p class="copy-help"><strong>請直接長按下方文字複製。</strong>「一鍵複製」若被手機瀏覽器阻擋，文字仍會完整保留在下方。</p><div class="copy-tools"><button type="button" class="btn dark" id="copyPanelCopy">一鍵複製</button><button type="button" class="btn" id="copyPanelSelect">全選文字</button><button type="button" class="btn" id="copyPanelDownload">下載文字檔</button><button type="button" class="btn" id="copyPanelOpenText">開啟純文字</button></div><p id="copyPanelStatus" role="status" aria-live="polite"></p><textarea id="groupTextArea" spellcheck="false" aria-label="可全選複製的群組文字"></textarea><small class="copy-version">文字工具 v2026.09.26-2</small>';
+  panel.innerHTML='<div class="copy-panel-head"><h3 id="groupTextTitle">群組文字</h3><button type="button" class="btn" id="copyPanelClose">回到按鈕</button></div><p class="copy-help"><strong>請直接長按下方文字複製。</strong>「一鍵複製」若被手機瀏覽器阻擋，文字仍會完整保留在下方。</p><div class="copy-tools"><button type="button" class="btn dark" id="copyPanelCopy">一鍵複製</button><button type="button" class="btn" id="copyPanelSelect">全選文字</button><button type="button" class="btn" id="copyPanelDownload">下載文字檔</button><button type="button" class="btn" id="copyPanelOpenText">開啟純文字</button></div><p id="copyPanelStatus" role="status" aria-live="polite"></p><textarea id="groupTextArea" spellcheck="false" aria-label="可全選複製的群組文字"></textarea><small class="copy-version">文字工具 v2026.10.02-上傳版</small>';
   const anchor=$('results');
   (anchor?.parentNode||document.querySelector('main')).insertBefore(panel,anchor||null);
   $('copyPanelClose').onclick=()=>{copyAttempt++;$('copy').focus();panel.scrollIntoView({block:'start'});};
