@@ -60,7 +60,7 @@ async function demandApi(payload,adminOverride=""){
   if(!pass)throw new Error("請重新登入");
   const headers={"Content-Type":"application/json","x-n12c-pass":pass};if(admin)headers["x-n12c-admin"]=admin;
   const r=await fetch(API,{method:"POST",headers,body:JSON.stringify(payload)});
-  if(!r.ok){let m="連線失敗";try{const j=await r.json();m=j.error||m}catch(e){}throw new Error(m)}
+  if(!r.ok){let m="連線失敗";try{const j=await r.json();m=(j.error||m)+(j.detail?"｜"+j.detail:"")}catch(e){}throw new Error(m)}
   return await r.json();
 }
 function fmtTime(v){try{return new Intl.DateTimeFormat("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(v))}catch(e){return""}}
